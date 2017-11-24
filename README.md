@@ -23,7 +23,7 @@ There are 4 examples with the  X-NUCLEO-53L0A1 library.
   proximity value of the onboard VL53L0X sensor together with the gesture
   library in order to detect a simple tap gesture.
 
-##Dependencies
+## Dependencies
 
 This package requires the following Arduino libraries:
 * VL53L0X: https://github.com/stm32duino/VL53L0X
