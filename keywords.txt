@@ -6,13 +6,13 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-STMPE1600DigiOut KEYWORD1
-VL53L0X_X_NUCLEO_53L0A1 KEYWORD1
+STMPE1600DigiOut	KEYWORD1
+VL53L0X_X_NUCLEO_53L0A1	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-VL53L0X_Off KEYWORD2
-VL53L0X_On KEYWORD2
-write KEYWORD2
+VL53L0X_Off	KEYWORD2
+VL53L0X_On	KEYWORD2
+write	KEYWORD2
