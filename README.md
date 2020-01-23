@@ -26,8 +26,8 @@ There are 4 examples with the  X-NUCLEO-53L0A1 library.
 ## Dependencies
 
 This package requires the following Arduino libraries:
-* VL53L0X: https://github.com/stm32duino/VL53L0X
-* Proximity_Gesture: https://github.com/stm32duino/Proximity_Gesture
+* STM32duino VL53L0X: https://github.com/stm32duino/VL53L0X
+* STM32duino Proximity Gesture: https://github.com/stm32duino/Proximity_Gesture
   
 ## Note
 
