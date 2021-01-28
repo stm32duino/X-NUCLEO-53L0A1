@@ -57,7 +57,7 @@ class VL53L0X_X_NUCLEO_53L0A1 : public VL53L0X
      * @param[in] pin_gpio1 pin Mbed InterruptIn PinName to be used as component GPIO_1 INT
      * @param[in] device address, 0x29 by default  
      */		
-    VL53L0X_X_NUCLEO_53L0A1(TwoWire *i2c, STMPE1600DigiOut *pin, int pin_gpio1, uint8_t DevAddr=VL53L0x_DEFAULT_DEVICE_ADDRESS) : VL53L0X(i2c, -1, pin_gpio1, DevAddr)
+    VL53L0X_X_NUCLEO_53L0A1(TwoWire *i2c, STMPE1600DigiOut *pin) : VL53L0X(i2c, -1)
     {
        expgpio0 = pin;
     }  	 
@@ -67,6 +67,16 @@ class VL53L0X_X_NUCLEO_53L0A1 : public VL53L0X
     virtual ~VL53L0X_X_NUCLEO_53L0A1(){}     
     /* warning: VL53L0X_X_NUCLEO_53L0A1 class inherits from GenericSensor, RangeSensor and LightSensor, that haven`t a destructor.
        The warning should request to introduce a virtual destructor to make sure to delete the object */
+
+    int begin()
+    {
+       return expgpio0->begin();
+    }
+
+    int end()
+    {
+       return expgpio0->end();
+    }
 
 	/*** Interface Methods ***/	
 	/*** High level API ***/		

@@ -70,12 +70,12 @@
 #endif
 
 // Components.
-STMPE1600DigiOut *xshutdown_top;
-STMPE1600DigiOut *xshutdown_left;
-STMPE1600DigiOut *xshutdown_right;
-VL53L0X_X_NUCLEO_53L0A1 *sensor_vl53l0x_top;
-VL53L0X_X_NUCLEO_53L0A1 *sensor_vl53l0x_left;
-VL53L0X_X_NUCLEO_53L0A1 *sensor_vl53l0x_right;
+STMPE1600DigiOut xshutdown_top(&DEV_I2C, GPIO_15, (0x42 * 2));
+STMPE1600DigiOut xshutdown_left(&DEV_I2C, GPIO_14, (0x43 * 2));
+STMPE1600DigiOut xshutdown_right(&DEV_I2C, GPIO_15, (0x43 * 2));
+VL53L0X_X_NUCLEO_53L0A1 sensor_vl53l0x_top(&DEV_I2C, &xshutdown_top);
+VL53L0X_X_NUCLEO_53L0A1 sensor_vl53l0x_left(&DEV_I2C, &xshutdown_left);
+VL53L0X_X_NUCLEO_53L0A1 sensor_vl53l0x_right(&DEV_I2C, &xshutdown_right);
 
 /* Setup ---------------------------------------------------------------------*/
 
@@ -110,43 +110,40 @@ void setup() {
   // Initialize I2C bus.
   DEV_I2C.begin();
 
-  // Create VL53L0X top component.
-  xshutdown_top = new STMPE1600DigiOut(&DEV_I2C, GPIO_15, (0x42 * 2));
-  sensor_vl53l0x_top = new VL53L0X_X_NUCLEO_53L0A1(&DEV_I2C, xshutdown_top, A2);
+  // Configure VL53L0X top component.
+  sensor_vl53l0x_top.begin();
   
   // Switch off VL53L0X top component.
-  sensor_vl53l0x_top->VL53L0X_Off();
+  sensor_vl53l0x_top.VL53L0X_Off();
   
-  // Create (if present) VL53L0X left component.
-  xshutdown_left = new STMPE1600DigiOut(&DEV_I2C, GPIO_14, (0x43 * 2));
-  sensor_vl53l0x_left = new VL53L0X_X_NUCLEO_53L0A1(&DEV_I2C, xshutdown_left, D8);
+  // Configure (if present) VL53L0X left component.
+  sensor_vl53l0x_left.begin();
   
   // Switch off (if present) VL53L0X left component.
-  sensor_vl53l0x_left->VL53L0X_Off();
+  sensor_vl53l0x_left.VL53L0X_Off();
   
-  // Create (if present) VL53L0X right component.
-  xshutdown_right = new STMPE1600DigiOut(&DEV_I2C, GPIO_15, (0x43 * 2));
-  sensor_vl53l0x_right = new VL53L0X_X_NUCLEO_53L0A1(&DEV_I2C, xshutdown_right, D2);
+  // Configure (if present) VL53L0X right component.
+  sensor_vl53l0x_right.begin();
   
   // Switch off (if present) VL53L0X right component.
-  sensor_vl53l0x_right->VL53L0X_Off();
+  sensor_vl53l0x_right.VL53L0X_Off();
   
   // Initialize VL53L0X top component.
-  status = sensor_vl53l0x_top->InitSensor(0x10);
+  status = sensor_vl53l0x_top.InitSensor(0x10);
   if(status)
   {
     SerialPort.println("Init sensor_vl53l0x_top failed...");
   }
 
   // Initialize VL53L0X left component.
-  status = sensor_vl53l0x_left->InitSensor(0x12);
+  status = sensor_vl53l0x_left.InitSensor(0x12);
   if(status)
   {
     SerialPort.println("Init sensor_vl53l0x_left failed...");
   }
 
   // Initialize VL53L0X right component.
-  status = sensor_vl53l0x_right->InitSensor(0x14);
+  status = sensor_vl53l0x_right.InitSensor(0x14);
   if(status)
   {
     SerialPort.println("Init sensor_vl53l0x_right failed...");
@@ -165,7 +162,7 @@ void loop() {
   // Read Range.
   uint32_t distance;
   int status;
-  status = sensor_vl53l0x_top->GetDistance(&distance);
+  status = sensor_vl53l0x_top.GetDistance(&distance);
 
   if (status == VL53L0X_ERROR_NONE)
   {
@@ -175,7 +172,7 @@ void loop() {
     SerialPort.println(report);
   }
 
-  status = sensor_vl53l0x_left->GetDistance(&distance);
+  status = sensor_vl53l0x_left.GetDistance(&distance);
 
   if (status == VL53L0X_ERROR_NONE)
   {
@@ -185,7 +182,7 @@ void loop() {
     SerialPort.println(report);
   }
 
-  status = sensor_vl53l0x_right->GetDistance(&distance);
+  status = sensor_vl53l0x_right.GetDistance(&distance);
 
   if (status == VL53L0X_ERROR_NONE)
   {

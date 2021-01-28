@@ -72,12 +72,12 @@
 #endif
 
 // Components.
-STMPE1600DigiOut *xshutdown_top;
-STMPE1600DigiOut *xshutdown_left;
-STMPE1600DigiOut *xshutdown_right;
-VL53L0X_X_NUCLEO_53L0A1 *sensor_vl53l0x_top;
-VL53L0X_X_NUCLEO_53L0A1 *sensor_vl53l0x_left;
-VL53L0X_X_NUCLEO_53L0A1 *sensor_vl53l0x_right;
+STMPE1600DigiOut xshutdown_top(&DEV_I2C, GPIO_15, (0x42 * 2));
+STMPE1600DigiOut xshutdown_left(&DEV_I2C, GPIO_14, (0x43 * 2));
+STMPE1600DigiOut xshutdown_right(&DEV_I2C, GPIO_15, (0x43 * 2));
+VL53L0X_X_NUCLEO_53L0A1 sensor_vl53l0x_top(&DEV_I2C, &xshutdown_top);
+VL53L0X_X_NUCLEO_53L0A1 sensor_vl53l0x_left(&DEV_I2C, &xshutdown_left);
+VL53L0X_X_NUCLEO_53L0A1 sensor_vl53l0x_right(&DEV_I2C, &xshutdown_right);
 
 // Gesture structure.
 Gesture_DIRSWIPE_1_Data_t gestureDirSwipeData;
@@ -95,52 +95,52 @@ void SetupSingleShot(void){
   uint32_t refSpadCount;
   uint8_t isApertureSpads;
 
-  status = sensor_vl53l0x_left->StaticInit();
+  status = sensor_vl53l0x_left.StaticInit();
   if( status ){
     SerialPort.println("StaticInit left sensor failed");
   }
 
-  status = sensor_vl53l0x_left->PerformRefCalibration(&VhvSettings, &PhaseCal);
+  status = sensor_vl53l0x_left.PerformRefCalibration(&VhvSettings, &PhaseCal);
   if( status ){
     SerialPort.println("PerformRefCalibration left sensor failed");
   }
 
-  status = sensor_vl53l0x_left->PerformRefSpadManagement(&refSpadCount, &isApertureSpads);
+  status = sensor_vl53l0x_left.PerformRefSpadManagement(&refSpadCount, &isApertureSpads);
   if( status ){
     SerialPort.println("PerformRefSpadManagement left sensor failed");
   }
 
-  status = sensor_vl53l0x_left->SetDeviceMode(VL53L0X_DEVICEMODE_SINGLE_RANGING); // Setup in single ranging mode
+  status = sensor_vl53l0x_left.SetDeviceMode(VL53L0X_DEVICEMODE_SINGLE_RANGING); // Setup in single ranging mode
   if( status ){
     SerialPort.println("SetDeviceMode left sensor failed");
   }
 
-  status = sensor_vl53l0x_left->SetMeasurementTimingBudgetMicroSeconds(20*1000);
+  status = sensor_vl53l0x_left.SetMeasurementTimingBudgetMicroSeconds(20*1000);
   if( status ){
     SerialPort.println("SetMeasurementTimingBudgetMicroSeconds left sensor failed");
   }
 
-  status = sensor_vl53l0x_right->StaticInit();
+  status = sensor_vl53l0x_right.StaticInit();
   if( status ){
     SerialPort.println("StaticInit right sensor failed");
   }
 
-  status = sensor_vl53l0x_right->PerformRefCalibration(&VhvSettings, &PhaseCal);
+  status = sensor_vl53l0x_right.PerformRefCalibration(&VhvSettings, &PhaseCal);
   if( status ){
     SerialPort.println("PerformRefCalibration right sensor failed");
   }
 
-  status = sensor_vl53l0x_right->PerformRefSpadManagement(&refSpadCount, &isApertureSpads);
+  status = sensor_vl53l0x_right.PerformRefSpadManagement(&refSpadCount, &isApertureSpads);
   if( status ){
     SerialPort.println("PerformRefSpadManagement right sensor failed");
   }
 
-  status = sensor_vl53l0x_right->SetDeviceMode(VL53L0X_DEVICEMODE_SINGLE_RANGING); // Setup in single ranging mode
+  status = sensor_vl53l0x_right.SetDeviceMode(VL53L0X_DEVICEMODE_SINGLE_RANGING); // Setup in single ranging mode
   if( status ){
     SerialPort.println("SetDeviceMode right sensor failed");
   }
 
-  status = sensor_vl53l0x_right->SetMeasurementTimingBudgetMicroSeconds(20*1000);
+  status = sensor_vl53l0x_right.SetMeasurementTimingBudgetMicroSeconds(20*1000);
   if( status ){
     SerialPort.println("SetMeasurementTimingBudgetMicroSeconds right sensor failed");
   }
@@ -180,36 +180,33 @@ void setup() {
   DEV_I2C.begin();
   DEV_I2C.setClock(400000);
 
-  // Create VL53L0X top component.
-  xshutdown_top = new STMPE1600DigiOut(&DEV_I2C, GPIO_15, (0x42 * 2));
-  sensor_vl53l0x_top = new VL53L0X_X_NUCLEO_53L0A1(&DEV_I2C, xshutdown_top, A2);
+  // Configure VL53L0X top component.
+  sensor_vl53l0x_top.begin();
   
   // Switch off VL53L0X top component.
-  sensor_vl53l0x_top->VL53L0X_Off();
+  sensor_vl53l0x_top.VL53L0X_Off();
   
-  // Create (if present) VL53L0X left component.
-  xshutdown_left = new STMPE1600DigiOut(&DEV_I2C, GPIO_14, (0x43 * 2));
-  sensor_vl53l0x_left = new VL53L0X_X_NUCLEO_53L0A1(&DEV_I2C, xshutdown_left, D8);
+  // Configure (if present) VL53L0X left component.
+  sensor_vl53l0x_left.begin();
   
   // Switch off (if present) VL53L0X left component.
-  sensor_vl53l0x_left->VL53L0X_Off();
+  sensor_vl53l0x_left.VL53L0X_Off();
   
-  // Create (if present) VL53L0X right component.
-  xshutdown_right = new STMPE1600DigiOut(&DEV_I2C, GPIO_15, (0x43 * 2));
-  sensor_vl53l0x_right = new VL53L0X_X_NUCLEO_53L0A1(&DEV_I2C, xshutdown_right, D2);
+  // Configure (if present) VL53L0X right component.
+  sensor_vl53l0x_right.begin();
   
   // Switch off (if present) VL53L0X right component.
-  sensor_vl53l0x_right->VL53L0X_Off();
+  sensor_vl53l0x_right.VL53L0X_Off();
 
   // Initialize VL53L0X left component.
-  status = sensor_vl53l0x_left->InitSensor(0x12);
+  status = sensor_vl53l0x_left.InitSensor(0x12);
   if(status)
   {
     SerialPort.println("Init sensor_vl53l0x_left failed...");
   }
 
   // Initialize VL53L0X right component.
-  status = sensor_vl53l0x_right->InitSensor(0x14);
+  status = sensor_vl53l0x_right.InitSensor(0x14);
   if(status)
   {
     SerialPort.println("Init sensor_vl53l0x_right failed...");
@@ -227,8 +224,8 @@ void setup() {
 void loop() {
   int gesture_code;
 
-  sensor_vl53l0x_left->StartMeasurement();
-  sensor_vl53l0x_right->StartMeasurement();
+  sensor_vl53l0x_left.StartMeasurement();
+  sensor_vl53l0x_right.StartMeasurement();
 
   int left_done = 0;
   int right_done = 0;
@@ -240,7 +237,7 @@ void loop() {
     if(left_done == 0)
     {
       NewDataReady = 0;
-      int status = sensor_vl53l0x_left->GetMeasurementDataReady(&NewDataReady);
+      int status = sensor_vl53l0x_left.GetMeasurementDataReady(&NewDataReady);
 
       if( status ){
         SerialPort.println("GetMeasurementDataReady left sensor failed");
@@ -248,12 +245,12 @@ void loop() {
       
       if(NewDataReady)
       {
-        status = sensor_vl53l0x_left->ClearInterruptMask(0);
+        status = sensor_vl53l0x_left.ClearInterruptMask(0);
         if( status ){
           SerialPort.println("ClearInterruptMask left sensor failed");
         }
 
-        status = sensor_vl53l0x_left->GetRangingMeasurementData(&pRangingMeasurementData);
+        status = sensor_vl53l0x_left.GetRangingMeasurementData(&pRangingMeasurementData);
         if( status ){
           SerialPort.println("GetRangingMeasurementData left sensor failed");
         }
@@ -272,7 +269,7 @@ void loop() {
     if(right_done == 0)
     {
       NewDataReady = 0;
-      int status = sensor_vl53l0x_right->GetMeasurementDataReady(&NewDataReady);
+      int status = sensor_vl53l0x_right.GetMeasurementDataReady(&NewDataReady);
 
       if( status ){
         SerialPort.println("GetMeasurementDataReady right sensor failed");
@@ -280,12 +277,12 @@ void loop() {
       
       if(NewDataReady)
       {
-        status = sensor_vl53l0x_right->ClearInterruptMask(0);
+        status = sensor_vl53l0x_right.ClearInterruptMask(0);
         if( status ){
           SerialPort.println("ClearInterruptMask right sensor failed");
         }
 
-        status = sensor_vl53l0x_right->GetRangingMeasurementData(&pRangingMeasurementData);
+        status = sensor_vl53l0x_right.GetRangingMeasurementData(&pRangingMeasurementData);
         if( status ){
           SerialPort.println("GetRangingMeasurementData right sensor failed");
         }
